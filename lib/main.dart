@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/db/api_service.dart';
-import 'package:story_app/db/auth_repository.dart';
 import 'package:story_app/provider/add_story_provider.dart';
 import 'package:story_app/provider/auth_provider.dart';
 import 'package:story_app/provider/detail_story_provider.dart';
@@ -26,8 +25,8 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    final authRepository = AuthRepository();
-    authProvider = AuthProvider(authRepository);
+    final apiService = ApiService(http.Client());
+    authProvider = AuthProvider(apiService);
   }
 
   @override

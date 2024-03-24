@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:story_app/db/auth_repository.dart';
+import 'package:story_app/db/api_service.dart';
 import 'package:story_app/model/login_response.dart';
 import 'package:story_app/model/user.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthRepository authRepository;
+  final ApiService apiService;
 
-  AuthProvider(this.authRepository);
+  AuthProvider(this.apiService);
 
   bool isLoadingLogin = false;
   bool isLoadingLogout = false;
@@ -18,15 +18,10 @@ class AuthProvider extends ChangeNotifier {
     isLoadingLogin = true;
     notifyListeners();
 
-    // final userState = await authRepository.getUser();
-    // if (user == userState) {
-    final userState = await authRepository.login(user);
-    // }
-    // isLoggedIn = await authRepository.isLoggedIn();
+    final userState = await apiService.login(user);
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = userState.loginResult.token;
-    print('that is the token :  $token');
     await pref.setString('token', token);
 
     isLoadingLogin = false;
@@ -48,22 +43,11 @@ class AuthProvider extends ChangeNotifier {
     return status;
   }
 
-  Future<bool> saveUser(User user) async {
-    isLoadingRegister = true;
-    notifyListeners();
-
-    final userState = await authRepository.saveUser(user);
-
-    isLoadingRegister = false;
-    notifyListeners();
-    return userState;
-  }
-
   Future<bool> registerUser(User user) async {
     isLoadingRegister = true;
     notifyListeners();
 
-    final userState = await authRepository.register(user);
+    final userState = await apiService.register(user);
 
     isLoadingRegister = false;
     notifyListeners();

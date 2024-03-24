@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/model/detail_story_response.dart';
+import 'package:story_app/model/login_response.dart';
 import 'package:story_app/model/story_response.dart';
+import 'package:story_app/model/user.dart';
 
 class ApiService {
   final http.Client client;
@@ -14,6 +16,57 @@ class ApiService {
   Future<String?> getTokenFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+
+  Future<bool> register(User user) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+      final response = await http.post(
+        Uri.parse('$_baseUrl/register'),
+        body: jsonEncode({
+          'name': user.name,
+          'email': user.email,
+          'password': user.password,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        // print("Register fail ${response.statusCode}");
+        return false;
+      }
+    } catch (error) {
+      // print('Error registering user: $error');
+      return false;
+    }
+  }
+
+  Future<LoginResponse> login(User user) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+      final response = await http.post(
+        Uri.parse('$_baseUrl/login'),
+        body: jsonEncode({
+          'email': user.email,
+          'password': user.password,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return LoginResponse.fromJson(json.decode(response.body));
+      } else {
+        throw Exception("failed login");
+      }
+    } catch (error) {
+      throw Exception(error);
+    }
   }
 
   Future<StoryResponse> getStories() async {
@@ -37,7 +90,7 @@ class ApiService {
     print(storyId);
     String? token = await getTokenFromPreferences();
     final response = await client.get(
-      Uri.parse('https://story-api.dicoding.dev/v1/stories/$storyId'),
+      Uri.parse('$_baseUrl/stories/$storyId'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -55,7 +108,7 @@ class ApiService {
       String? token = await getTokenFromPreferences();
 
       var request = http.MultipartRequest(
-          'POST', Uri.parse('https://story-api.dicoding.dev/v1/stories'));
+          'POST', Uri.parse('$_baseUrl/stories'));
 
       request.files
           .add(http.MultipartFile.fromBytes(  

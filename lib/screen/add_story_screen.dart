@@ -48,7 +48,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
                 GoRouter.of(context).pushNamed(Routes.home);
               }
             },
-            icon: const Icon(Icons.done_rounded),
+            icon: const Icon(Icons.done_all_rounded, color: Colors.deepPurple),
             tooltip: "Unggah",
           )
         ],
@@ -119,14 +119,20 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
   Widget _showImage() {
     final imagePath = context.read<AddStoryProvider>().imagePath;
     return kIsWeb
-        ? Image.network(
-            imagePath.toString(),
-            fit: BoxFit.contain,
-          )
-        : Image.file(
-            File(imagePath.toString()),
-            fit: BoxFit.contain,
-          );
+        ? ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: Image.network(
+              imagePath.toString(),
+              fit: BoxFit.contain,
+            ),
+        )
+        : ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          child: Image.file(
+              File(imagePath.toString()),
+              fit: BoxFit.contain,
+            ),
+        );
   }
 
   _onCameraView() async {

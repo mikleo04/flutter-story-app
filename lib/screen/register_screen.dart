@@ -104,7 +104,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
                           }
                         },
-                        child: const Text("REGISTER"),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.deepPurple)),
+                        child: const Text("REGISTER", style: TextStyle(color: Colors.white),),
                       ),
                 const SizedBox(
                   height: 8,
