@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/add_story_provider.dart';
 import 'package:story_app/provider/story_provider.dart';
-import 'package:story_app/routes.dart';
 
 class AddStoryScreen extends StatefulWidget {
   const AddStoryScreen({super.key});
@@ -45,7 +44,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
                 ));
                 final authReadHome = context.read<StoryProvider>();
                 await authReadHome.fecthStories();
-                GoRouter.of(context).pushNamed(Routes.home);
+                GoRouter.of(context).pop();
               }
             },
             icon: const Icon(Icons.done_all_rounded, color: Colors.deepPurple),

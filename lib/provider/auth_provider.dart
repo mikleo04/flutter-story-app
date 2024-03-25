@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/db/api_service.dart';
-import 'package:story_app/model/login_response.dart';
 import 'package:story_app/model/user.dart';
 
 class AuthProvider extends ChangeNotifier {
