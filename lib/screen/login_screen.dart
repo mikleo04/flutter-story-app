@@ -91,11 +91,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   email: emailController.text,
                                   password: passwordController.text);
                               final authRead = context.read<AuthProvider>();
-          
+
                               final result = await authRead.login(user);
-                              if (result.error == false) {
+                              if (result) {
+                                print("Success login");
                                 widget.onLogin();
                               } else {
+                                print("gagal login");
                                 scaffoldMessenger.showSnackBar(
                                   const SnackBar(
                                       content: Text(
@@ -105,8 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                           },
                           style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple)),
-                          child: const Text("Login", style: TextStyle(color: Colors.white)),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.deepPurple)),
+                          child: const Text("Login",
+                              style: TextStyle(color: Colors.white)),
                         ),
                   const SizedBox(
                     height: 8,

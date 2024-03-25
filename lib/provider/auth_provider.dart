@@ -14,20 +14,26 @@ class AuthProvider extends ChangeNotifier {
   bool isLoadingRegister = false;
   bool isLoggedIn = false;
 
-  Future<LoginResponse> login(User user) async {
+  Future<bool> login(User user) async {
     isLoadingLogin = true;
     notifyListeners();
 
-    final userState = await apiService.login(user);
+    try {
+      final userState = await apiService.login(user);
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      final token = userState.loginResult.token;
+      await pref.setString('token', token);
 
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    final token = userState.loginResult.token;
-    await pref.setString('token', token);
+      isLoadingLogin = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      isLoadingLogin = false;
+      notifyListeners();
+      print(e);
+      return false;
+    }
 
-    isLoadingLogin = false;
-    notifyListeners();
-
-    return userState;
   }
 
   Future<bool> logout() async {
