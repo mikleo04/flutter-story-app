@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/constant/result_state.dart';
 import 'package:story_app/db/api_service.dart';
-import 'package:story_app/model/story_response.dart';
+import 'package:story_app/model/list_story.dart';
 import 'package:story_app/provider/detail_story_provider.dart';
 
 class DetailStoryScreen extends StatefulWidget {

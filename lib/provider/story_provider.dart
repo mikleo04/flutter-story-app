@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:story_app/constant/result_state.dart';
 import 'package:story_app/db/api_service.dart';
 import 'package:story_app/model/detail_story_response.dart';
+import 'package:story_app/model/list_story.dart';
 import 'package:story_app/model/story_response.dart';
 
 class StoryProvider extends ChangeNotifier {
