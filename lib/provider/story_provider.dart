@@ -11,6 +11,9 @@ class StoryProvider extends ChangeNotifier {
   late ResultState _state;
   String _message = '';
 
+  int? pageItems = 1;
+  int sizeItems = 10;
+
   StoryProvider({required this.apiService}) {
     _storyResponse = StoryResponse(error: false, message: '', listStory: []);
     fecthStories();
@@ -22,17 +25,30 @@ class StoryProvider extends ChangeNotifier {
   DetailStoryResponse get resultDeyail => _detailStoryResponse;
   ResultState get state => _state;
 
+  List<ListStory> listStories = [];
+
   Future<dynamic> fecthStories() async {
     try {
-      _state = ResultState.loading;
-      notifyListeners();
-      final stories = await apiService.getStories();
+      if (pageItems == 1) {
+        _state = ResultState.loading;
+        notifyListeners();
+      }
+
+      final stories = await apiService.getStories(pageItems!, sizeItems);
       if (stories.listStory.isEmpty) {
         _state = ResultState.noData;
         notifyListeners();
         return _message = 'Empty Data';
       } else {
         _state = ResultState.hasData;
+        listStories.addAll(stories.listStory);
+
+        if (stories.listStory.length < sizeItems) {
+          pageItems = null;
+        } else {
+          pageItems = pageItems! + 1;
+        }
+
         notifyListeners();
         return _storyResponse = stories;
       }

@@ -2,14 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/constant/result_state.dart';
-import 'package:story_app/model/story_response.dart';
 import 'package:story_app/provider/auth_provider.dart';
 import 'package:story_app/provider/story_provider.dart';
 import 'package:story_app/routes.dart';
 import 'package:story_app/widget/story_card_widget.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    final storyProvider = context.read<StoryProvider>();
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent) {
+        if (storyProvider.pageItems != null) {
+          storyProvider.fecthStories();
+        }
+      }
+    });
+
+    Future.microtask(() async => storyProvider.fecthStories());
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,18 +88,30 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildList(BuildContext context) {
     return Consumer<StoryProvider>(builder: (context, provider, child) {
-      List<ListStory> displayStories = provider.result.listStory;
+      // final displayStories = provider.result.listStory;
 
       if (provider.state == ResultState.loading) {
         return const Center(
           child: CircularProgressIndicator(),
         );
       } else if (provider.state == ResultState.hasData) {
+        final listStories = provider.listStories;
         return ListView.builder(
             shrinkWrap: true,
-            itemCount: displayStories.length,
+            controller: scrollController,
+            itemCount:
+                listStories.length + (provider.pageItems != null ? 1 : 0),
             itemBuilder: (context, index) {
-              var story = displayStories[index];
+              if (index == listStories.length &&
+                  provider.pageItems != null) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              var story = listStories[index];
               return StoryCardWidget(story: story);
             });
       } else if (provider.state == ResultState.error) {

@@ -69,12 +69,11 @@ class ApiService {
     }
   }
 
-  Future<StoryResponse> getStories() async {
+  Future<StoryResponse> getStories([int page = 1, int size = 10]) async {
     String? token = await getTokenFromPreferences();
-    print("Load The token $token");
 
     final response = await client.get(
-      Uri.parse('$_baseUrl/stories'),
+      Uri.parse('$_baseUrl/stories?page=$page&size=$size'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -103,19 +102,16 @@ class ApiService {
     }
   }
 
-  Future<bool> postStory(String description, List<int> imageData, String imageName  ) async {
+  Future<bool> postStory(
+      String description, List<int> imageData, String imageName) async {
     try {
       String? token = await getTokenFromPreferences();
 
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('$_baseUrl/stories'));
+      var request =
+          http.MultipartRequest('POST', Uri.parse('$_baseUrl/stories'));
 
-      request.files
-          .add(http.MultipartFile.fromBytes(  
-            'photo',
-            imageData,
-            filename: imageName
-          ));
+      request.files.add(http.MultipartFile.fromBytes('photo', imageData,
+          filename: imageName));
 
       request.fields['description'] = description;
 
