@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/constant/result_state.dart';
@@ -16,6 +19,8 @@ class DetailStoryScreen extends StatefulWidget {
 
 class _DetailStoryScreenState extends State<DetailStoryScreen> {
   late final ListStory listStory;
+  late GoogleMapController mapController;
+  final Set<Marker> markers = {};
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +82,32 @@ class _DetailStoryScreenState extends State<DetailStoryScreen> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Scaffold buildDetailStory(
       BuildContext context, DetailStoryProvider provider) {
     var detailStory = provider.result.story;
+
+    if (detailStory.lat != null && detailStory.lon != null) {
+      final locationStory = LatLng(detailStory.lat!, detailStory.lon!);
+      final marker = Marker(
+        markerId: const MarkerId("location story"),
+        position: locationStory,
+        onTap: () {
+          mapController.animateCamera(
+            CameraUpdate.newLatLngZoom(locationStory, 18),
+          );
+        },
+      );
+      markers.add(marker);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Detail Story"),
+        title: const Text("Detail Story"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -164,6 +189,28 @@ class _DetailStoryScreenState extends State<DetailStoryScreen> {
                   ),
                 ),
               ]),
+              const SizedBox(
+                height: 10,
+              ),
+              detailStory.lat != null && detailStory.lon != null
+                  ? SizedBox(
+                      height: 200,
+                      child: GoogleMap(
+                        markers: markers,
+                        initialCameraPosition: CameraPosition(
+                            zoom: 18,
+                            target: LatLng(detailStory.lat!, detailStory.lon!)),
+                        onMapCreated: (controller) {
+                          setState(() {
+                            mapController = controller;
+                          });
+                        },
+                      ),
+                    )
+                  : const Text("The story doesn't have maps"),
+              const SizedBox(
+                height: 10,
+              )
             ],
           ),
         ),
