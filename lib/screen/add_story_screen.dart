@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/provider/add_story_provider.dart';
 import 'package:story_app/provider/story_provider.dart';
+import 'package:story_app/routes.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 class AddStoryScreen extends StatefulWidget {
   const AddStoryScreen({super.key});
@@ -53,47 +57,90 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-                flex: 2,
-                child: context.watch<AddStoryProvider>().imagePath == null
-                    ? const Align(
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.image_rounded,
-                          size: 100,
-                        ),
-                      )
-                    : _showImage()),
-            SizedBox(
-              height: 200,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                      hintText: "Write description story here",
-                      border: OutlineInputBorder()),
-                  maxLines: 8,
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                  flex: 2,
+                  child: context.watch<AddStoryProvider>().imagePath == null
+                      ? const Align(
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.image_rounded,
+                            size: 100,
+                          ),
+                        )
+                      : _showImage()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                      margin: const EdgeInsets.fromLTRB(0, 30, 0, 10),
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          border: Border.all(
+                              color: Colors.grey,
+                              width: 1.0,
+                              style: BorderStyle.solid)),
+                      child: Consumer<AddStoryProvider>(builder: (context, provider, _) {
+                        final placemark = provider.newPlacemark;
+                        return placemark == null
+                            ? const Text("Choose the location")
+                            : Text(
+                                "${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}");
+                      }),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    margin: const EdgeInsets.fromLTRB(5, 30, 0, 10),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
+                        border: Border.all(
+                            color: Colors.grey,
+                            width: 1.0,
+                            style: BorderStyle.solid)),
+                    child: IconButton(
+                        onPressed: () async {
+                          final recievePlacemark =
+                              await GoRouter.of(context).pushNamed(Routes.maps);
+                          Provider.of<AddStoryProvider>(context, listen: false)
+                              .updatePlaceMark(
+                                  recievePlacemark as geo.Placemark);
+                        },
+                        icon: const Icon(Icons.location_pin, color: Colors.white)),
+                  )
+                ],
               ),
-            ),
-            Expanded(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    onPressed: () => _onGalleryView(),
-                    child: const Text("Gallery")),
-                ElevatedButton(
-                    onPressed: () => _onCameraView(),
-                    child: const Text("Camera")),
-              ],
-            ))
-          ],
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                    hintText: "Write description story here",
+                    border: OutlineInputBorder()),
+                maxLines: 4,
+              ),
+              Expanded(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                      onPressed: () => _onGalleryView(),
+                      child: const Text("Gallery")),
+                  ElevatedButton(
+                      onPressed: () => _onCameraView(),
+                      child: const Text("Camera")),
+                ],
+              ))
+            ],
+          ),
         ),
       ),
     );
@@ -119,19 +166,19 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
     final imagePath = context.read<AddStoryProvider>().imagePath;
     return kIsWeb
         ? ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          child: Image.network(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Image.network(
               imagePath.toString(),
               fit: BoxFit.contain,
             ),
-        )
+          )
         : ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          child: Image.file(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Image.file(
               File(imagePath.toString()),
               fit: BoxFit.contain,
             ),
-        );
+          );
   }
 
   _onCameraView() async {

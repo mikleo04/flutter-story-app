@@ -4,6 +4,7 @@ import 'package:story_app/screen/add_story_screen.dart';
 import 'package:story_app/screen/detail_story_screen.dart';
 import 'package:story_app/screen/home_screen.dart';
 import 'package:story_app/screen/login_screen.dart';
+import 'package:story_app/screen/maps_screen.dart';
 import 'package:story_app/screen/register_screen.dart';
 import 'package:story_app/screen/splash_screen.dart';
 
@@ -14,6 +15,7 @@ class Routes {
   static const String detail = 'detail';
   static const String addStory = 'add-story';
   static const String camera = 'camera';
+  static const String maps = 'maps';
 
   static GoRouter goRouter =
       GoRouter(initialLocation: '/', debugLogDiagnostics: true, routes: [
@@ -75,5 +77,12 @@ class Routes {
         pageBuilder: (context, state) {
           return const MaterialPage(child: AddStoryScreen());
         }),
+    GoRoute(
+      path: '/maps',
+      name: maps,
+      pageBuilder: (context, state) {
+        return const MaterialPage(child: MapsScreen());
+      },
+    )
   ]);
 }

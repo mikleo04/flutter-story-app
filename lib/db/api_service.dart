@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/model/detail_story_response.dart';
@@ -102,8 +103,8 @@ class ApiService {
     }
   }
 
-  Future<bool> postStory(
-      String description, List<int> imageData, String imageName) async {
+  Future<bool> postStory(String description, List<int> imageData,
+      String imageName, double? lat, double? lon) async {
     try {
       String? token = await getTokenFromPreferences();
 
@@ -114,6 +115,9 @@ class ApiService {
           filename: imageName));
 
       request.fields['description'] = description;
+
+      if (lat != null) request.fields['lat'] = '$lat';
+      if (lon != null) request.fields['lon'] = '$lon';
 
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Content-Type'] = 'multipart/form-data';
